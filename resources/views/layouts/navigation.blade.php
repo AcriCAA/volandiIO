@@ -38,6 +38,12 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        @can('viewHorizon')
+                            <x-dropdown-link :href="url('/horizon')" target="_blank">
+                                {{ __('Queues (Horizon)') }}
+                            </x-dropdown-link>
+                        @endcan
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

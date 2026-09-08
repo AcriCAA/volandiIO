@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('flights:check-alerts')->hourly()->withoutOverlapping();
+Schedule::command('horizon:snapshot')->everyFiveMinutes();

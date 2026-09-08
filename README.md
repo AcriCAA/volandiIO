@@ -33,6 +33,12 @@ npm install
 npm run build
 ```
 
+### Redis
+
+Queues are managed by [Laravel Horizon](https://laravel.com/docs/horizon), which requires
+Redis. Make sure a Redis server is running and reachable via `REDIS_HOST`/`REDIS_PORT` in
+your `.env` (defaults to `127.0.0.1:6379`).
+
 ### Amadeus API credentials
 
 1. Sign up for a free account at https://developers.amadeus.com.
@@ -51,17 +57,25 @@ npm run build
 
 ### Running it locally
 
-You need three things running for alerts to actually get checked and delivered:
+You need these running for alerts to actually get checked and delivered:
 
 ```bash
 php artisan serve          # the web app
-php artisan queue:work     # processes CheckFlightAlertPrice jobs
+php artisan horizon        # processes CheckFlightAlertPrice jobs (needs Redis)
 php artisan schedule:work  # triggers flights:check-alerts hourly (local dev only)
 ```
 
 In production, replace `schedule:work` with a real cron entry running
-`php artisan schedule:run` every minute, and run the queue worker under a process
-supervisor (e.g. Supervisor or systemd).
+`php artisan schedule:run` every minute, and run `php artisan horizon` under a process
+supervisor (e.g. Supervisor or systemd) so it restarts if it dies. See
+[Laravel Horizon's deployment docs](https://laravel.com/docs/horizon#deploying-horizon) for a
+sample Supervisor config, and call `php artisan horizon:terminate` during deploys so Horizon
+restarts with the new code.
+
+The Horizon dashboard is available at `/horizon`. In the `local` environment any visitor can
+open it; in other environments only users whose email is listed in `HORIZON_ADMIN_EMAILS`
+(comma-separated, see `.env`) can, via the `viewHorizon` gate in
+`App\Providers\HorizonServiceProvider`.
 
 You can also trigger a check run manually at any time:
 
